@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: caddy-plugins
+    restart: unless-stopped
+    ports:
+      - "80:80"      # HTTP
+      - "443:443"    # HTTPS
+      - "2019:2019"  # Admin API
+    volumes:
+      # Mount Caddyfile for easy configuration changes
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Persist Caddy data (certificates, etc.)
+      - caddy-data:/data
+      - caddy-config:/config
+      # Optional: mount your website files
+      # - ./site:/usr/share/caddy:ro
+    environment:
+      # Set log level (DEBUG, INFO, WARN, ERROR)
+      - CADDY_LOG_LEVEL=INFO
+    networks:
+      - caddy-network
+
+volumes:
+  caddy-data:
+    name: caddy-data
+  caddy-config:
+    name: caddy-config
+
+networks:
+  caddy-network:
+    name: caddy-network
